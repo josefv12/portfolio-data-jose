@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Datos (No subir archivos CSV gigantes, mejor poner el link al dataset)
+*.csv
+*.xlsx
+
+# Sistema
+.DS_Store
+Thumbs.db
