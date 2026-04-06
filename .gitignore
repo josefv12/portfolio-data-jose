@@ -12,6 +12,13 @@ venv/
 *.csv
 *.xlsx
 
+# Imágenes generadas (se regeneran al ejecutar el notebook)
+data/fig_*.png
+*/data/fig_*.png
+
+# Scripts de construcción temporales
+build_notebook.py
+
 # Sistema
 .DS_Store
 Thumbs.db
