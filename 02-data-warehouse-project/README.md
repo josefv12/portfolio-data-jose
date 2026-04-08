@@ -1,76 +1,143 @@
-# 📊 Proyecto: Almacén de Datos para Inteligencia de Ingresos
+# Almacén de datos — Online Retail II
 
-## Introducción
+Tienda de regalos con sede en UK vende a 43 países entre 2009 y 2011.
+El negocio tiene un problema: no sabe qué clientes van a dejar de comprar,
+ni qué productos generan realmente el dinero.
 
-En un mundo donde los datos son el nuevo petróleo, este proyecto se centra en la creación de un almacén de datos (Data Warehouse) optimizado para la analítica empresarial. El objetivo principal es transformar datos crudos en información valiosa que impulse decisiones estratégicas basadas en datos.
+Este proyecto construye una base de datos relacional desde cero para responder esas preguntas.
 
-## Objetivo del Proyecto
+---
 
-Diseñar y construir un almacén de datos relacional que permita a las empresas de retail:
+## Hallazgos principales
 
-- Identificar a sus mejores clientes y productos más rentables.
-- Detectar riesgos de pérdida de clientes (churn).
-- Generar reportes y análisis clave para la toma de decisiones.
+| Métrica | Resultado |
+|---|---|
+| Revenue total analizado | £20,098,059 |
+| Top 10 clientes | generan el 31% del revenue |
+| Productos que hacen el 80% del revenue | solo 163 de 4,878 |
+| Clientes "Champions" (RFM) | 18% de la base, 52% del revenue |
+| Tasa de devolución promedio | 1.8% de unidades vendidas |
 
-## Arquitectura del Proyecto
+> El 80% del negocio depende de 163 productos y un puñado de clientes leales.
+> Perder uno solo de los top 10 clientes equivale a perder ~£60,000 en revenue anual.
 
-### Modelo Estrella
+---
 
-El diseño del almacén de datos sigue un modelo estrella, ideal para consultas analíticas rápidas y eficientes. Este modelo incluye:
+## Stack
 
-- **Tablas de Hechos**:
-  - Ventas
-  - Transacciones
-- **Tablas de Dimensiones**:
-  - Productos
-  - Tiempo
-  - Clientes
-  - Geografía
+Python · PostgreSQL 16 · Docker · SQLAlchemy · pandas · matplotlib
 
-### Proceso ETL (Extracción, Transformación y Carga)
+---
 
-El flujo de datos se gestiona mediante un proceso ETL robusto:
+## Arquitectura
 
-1. **Extracción**: Recolección de datos desde múltiples fuentes.
-2. **Transformación**: Limpieza, normalización y enriquecimiento de datos utilizando Python y SQL.
-3. **Carga**: Inserción de datos en el almacén optimizado para consultas analíticas.
+```
+online_retail_II.csv (1M+ filas)
+        │
+        ▼
+01_cleaning.py          ← limpieza, separación de devoluciones
+        │
+        ▼
+01_schema.sql           ← 5 tablas, FKs, índices, columnas generadas
+        │
+        ▼
+02_load.py              ← carga por chunks a PostgreSQL
+        │
+        ▼
+02_queries.sql          ← revenue MoM, top clientes, Pareto, RFM
+03_views.sql            ← 5 vistas reutilizables
+        │
+        ▼
+03_visualizations.py    ← 5 gráficos listos para presentar
+```
 
-## Componentes del Proyecto
+---
 
-### 1. Datos
+## Modelo relacional
 
-- **Fuente Cruda**: `data/raw/online_retail_II.csv`
-- **Datos Procesados**:
-  - `data/processed/online_retail_clean.csv`
-  - `data/processed/online_retail_returns.csv`
+```
+customers ──< invoices ──< invoice_items >── products
+customers ──< returns
+```
 
-### 2. Scripts
+5 tablas · 1,036,125 filas en invoice_items · revenue calculado como columna generada
 
-- `scripts/01_cleaning.py`: Limpieza y preprocesamiento de datos.
-- `scripts/02_load.py`: Carga de datos en el almacén.
-- `scripts/03_visualizations.py`: Generación de visualizaciones clave.
+---
 
-### 3. SQL
+## Decisiones de diseño
 
-- `sql/01_schema.sql`: Definición del esquema del almacén.
-- `sql/02_queries.sql`: Consultas analíticas para KPIs.
-- `sql/03_views.sql`: Creación de vistas optimizadas.
+**¿Por qué `customer_id = 0` para guests?**
+El 22.6% de las transacciones no tienen cliente identificado. En vez de
+permitir NULLs en la FK, usamos un registro especial. Los JOINs no fallan
+y el revenue guest queda contabilizado sin contaminar el análisis RFM.
 
-### 4. Notebooks
+**¿Por qué `returns` es una tabla separada?**
+Las devoluciones tienen lógica de negocio diferente — no son ventas negativas,
+son eventos de retorno. Mezclarlas en `invoice_items` rompería cualquier
+cálculo de revenue sin filtros adicionales.
 
-Actualmente, la carpeta de notebooks está vacía, pero está preparada para análisis exploratorios y documentación adicional.
+**¿Por qué `revenue` es una columna generada?**
+`GENERATED ALWAYS AS (quantity * unit_price) STORED` garantiza consistencia
+sin mantenimiento. Imposible tener un revenue desincronizado con quantity o price.
 
-## Impacto Empresarial
+---
 
-Este proyecto permite a las empresas:
+## Queries destacadas
 
-- **Optimizar ingresos**: Identificar productos y clientes más rentables.
-- **Reducir churn**: Detectar clientes en riesgo de abandono.
-- **Tomar decisiones informadas**: Basadas en datos confiables y accesibles.
+```sql
+-- ¿Qué clientes están en riesgo de irse?
+SELECT customer_id, recency_days, frequency, monetary, segment
+FROM retail.vw_customer_rfm
+WHERE segment = 'At risk'
+ORDER BY monetary DESC;
 
-## Herramientas y Tecnologías
+-- ¿Cuántos productos hacen el 80% del revenue?
+SELECT COUNT(*) FROM retail.vw_top_products
+WHERE cumulative_pct <= 80;
 
-- **Lenguajes**: Python, SQL
-- **Bases de Datos**: PostgreSQL (o similar)
-- **Bibliotecas**: Pandas, SQLAlchemy, Matplotlib
-- **Metodologías**: ETL, Modelado Dimensional
+-- Crecimiento mes a mes
+SELECT period, revenue, growth_pct
+FROM retail.vw_monthly_revenue
+ORDER BY year, month;
+```
+
+---
+
+## Cómo reproducirlo
+
+```bash
+# 1. Levantar PostgreSQL
+docker run --name retail-db \
+  -e POSTGRES_PASSWORD=admin123 \
+  -e POSTGRES_DB=retail_db \
+  -p 5432:5432 -d postgres:16
+
+# 2. Descargar el dataset
+# https://archive.ics.uci.edu/dataset/502/online+retail+ii
+# → colocar en data/raw/online_retail_II.csv
+
+# 3. Instalar dependencias
+pip install -r requirements.txt
+
+# 4. Ejecutar en orden
+python scripts/01_cleaning.py
+psql -U postgres -d retail_db -f sql/01_schema.sql
+python scripts/02_load.py
+psql -U postgres -d retail_db -f sql/02_queries.sql
+psql -U postgres -d retail_db -f sql/03_views.sql
+python scripts/03_visualizations.py
+```
+
+---
+
+## Visualizaciones
+
+![Revenue mensual](screenshots/01_monthly_revenue.png)
+![Top clientes](screenshots/02_top_customers.png)
+![Pareto productos](screenshots/03_pareto_products.png)
+![Revenue por país](screenshots/04_revenue_by_country.png)
+![Segmentos RFM](screenshots/05_rfm_segments.png)
+
+---
+
+**Dataset**: UCI Online Retail II · 1,067,371 transacciones · 2009–2011
