@@ -22,3 +22,7 @@ build_notebook.py
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Samples para Streamlit Cloud
+!03-executive-dashboard/data/processed/sample_clean.csv
+!03-executive-dashboard/data/processed/sample_returns.csv
