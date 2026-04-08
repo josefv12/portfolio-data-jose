@@ -46,9 +46,13 @@ def load_data():
                 "SELECT * FROM online_retail_returns", conn
             )
     else:
-        # Fallback: load from CSV (useful for local dev / Streamlit Cloud demo)
-        df = pd.read_csv("data/processed/online_retail_clean.csv")
-        ret = pd.read_csv("data/processed/online_retail_returns.csv")
+        import os
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        df = pd.read_csv(os.path.join(BASE_DIR, "data/processed/online_retail_clean.csv"))
+        ret = pd.read_csv(os.path.join(BASE_DIR, "data/processed/online_retail_returns.csv"))
+       
 
     df["invoice_date"] = pd.to_datetime(df["invoice_date"])
     ret["invoice_date"] = pd.to_datetime(ret["invoice_date"])
