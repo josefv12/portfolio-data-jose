@@ -42,8 +42,8 @@ def load_data():
     else:
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         df  = pd.read_csv(os.path.join(BASE_DIR, "data/processed/sample_clean.csv"))
-        ret = pd.read_csv(os.path.join(BASE_DIR, "data/processed/online_retail_returns.csv"))
-
+        ret = pd.read_csv(os.path.join(BASE_DIR, "data/processed/sample_returns.csv"))
+        
     df["invoice_date"]  = pd.to_datetime(df["invoice_date"])
     ret["invoice_date"] = pd.to_datetime(ret["invoice_date"])
     df["year_month"]    = df["invoice_date"].dt.to_period("M").astype(str)
