@@ -26,3 +26,5 @@ Thumbs.db
 # Samples para Streamlit Cloud
 !03-executive-dashboard/data/processed/sample_clean.csv
 !03-executive-dashboard/data/processed/sample_returns.csv
+
+!01-retail-revenue-optimization/notebooks/fig*.png
