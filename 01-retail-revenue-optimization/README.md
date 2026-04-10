@@ -1,51 +1,62 @@
-Retail Revenue Optimization
-Proyecto 1 de 4 — Análisis Exploratorio de Datos
+# Retail Revenue Optimization — Online Retail II
 
-Portafolio: portfolio-data-jose
+Un e-commerce del Reino Unido con ventas globales necesitaba entender su comportamiento de ventas antes de definir la estrategia del año siguiente. Con más de 1 millón de transacciones reales (2009–2011), este análisis responde 5 preguntas críticas de negocio.
 
+---
 
-🧩 El problema de negocio
-Un e-commerce del Reino Unido (2009–2011) necesita entender su comportamiento de ventas para definir la estrategia del próximo año. Con más de 1 millón de transacciones reales, respondemos 5 preguntas críticas:
+## Hallazgos principales
 
-¿Los ingresos están creciendo? ¿Hay estacionalidad?
-¿Cuánto dependemos del mercado británico?
-¿Qué productos son los verdaderos motores del negocio?
-¿Cuándo compra nuestra gente?
-¿Estamos reteniendo clientes?
+| Pregunta              | Hallazgo                                      | Acción recomendada                       |
+| --------------------- | --------------------------------------------- | ---------------------------------------- |
+| ¿Los ingresos crecen? | Pico en noviembre 2011 — £1,456,776 en un mes | Preparar inventario desde septiembre     |
+| ¿Dependencia de UK?   | 83% del revenue concentrado en UK             | Expandir EIRE, Alemania, Francia         |
+| ¿Productos clave?     | Top 10 SKUs son el motor del ingreso          | Stock garantizado + mejores márgenes     |
+| ¿Cuándo compran?      | Jueves y miércoles son los días peak          | Activar campañas martes–jueves           |
+| ¿Retención?           | 72% de clientes identificados regresan        | Programa de lealtad para clientes nuevos |
 
+---
 
-🔍 Hallazgos principales
-Pregunta HallazgoImpacto
-¿Crecimiento? Pico en Nov 2011 — £274K en un mes
-Planificar inventario desde sep¿Dependencia UK?83% concentrado en UKExpandir Europa continental
-¿Productos clave?Top 10 SKUs = motor del ingresoStock garantizado
-¿Cuándo compran?Jueves y miércoles son los días peakActivar campañas Tue–Thu¿Retención?~96% de clientes son recurrentesPrograma de lealtad
+## KPIs del dataset
 
-📊 KPIs del dataset
-MétricaValor💰 Ingresos totales£20.97 millones🧾 Órdenes~22,000+👤 Clientes únicos~5,800📦 SKUs únicos~4,600🗓️ PeríodoDic 2009 – Dic 2011
+| Métrica         | Valor               |
+| --------------- | ------------------- |
+| Revenue total   | £20,972,968         |
+| Órdenes únicas  | 40,078              |
+| Clientes únicos | 5,878               |
+| Período         | Dic 2009 – Dic 2011 |
 
-📁 Estructura
-01-retail-revenue-optimization/
-├── data/
-│   └── online_retail_II.csv        # Dataset fuente (UCI ML Repository)
-├── notebooks/
-│   ├── retail_eda_notebook.ipynb   # Análisis completo con storytelling
-│   ├── fig1_monthly_revenue.png
-│   ├── fig2_countries.png
-│   ├── fig3_products.png
-│   ├── fig4_dayofweek.png
-│   └── fig5_retention.png
-└── README.md
+---
 
-🛠️ Stack técnico
-Python 3 · Pandas · Matplotlib · Jupyter Notebook
+## Visualizaciones
 
-🚀 Cómo ejecutar
-bashcd 01-retail-revenue-optimization
-pip install pandas matplotlib
+![Revenue mensual](notebooks/fig1_monthly_revenue.png)
+![Revenue por país](notebooks/fig2_countries.png)
+![Top productos](notebooks/fig3_products.png)
+![Ingresos por día](notebooks/fig4_dayofweek.png)
+![Retención de clientes](notebooks/fig5_retention.png)
+
+---
+
+## Stack técnico
+
+Python · Pandas · Matplotlib · Jupyter Notebook
+
+---
+
+## Cómo ejecutar
+
+```bash
+cd 01-retail-revenue-optimization
+pip install pandas matplotlib jupyter
+
+# Descargar el dataset desde:
+# https://archive.ics.uci.edu/dataset/502/online+retail+ii
+# → colocar en data/online_retail_II.csv
+
 jupyter notebook notebooks/retail_eda_notebook.ipynb
+```
 
-Dataset: Online Retail II — UCI ML Repository
+---
 
-
-Jose Fernández · LinkedIn · GitHub
+**Dataset**: UCI Online Retail II · 1,067,371 transacciones · 2009–2011  
+**Proyecto siguiente**: [02 — Data Warehouse](../02-data-warehouse-project)
