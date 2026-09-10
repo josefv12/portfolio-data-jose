@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from data import TARGET, load_dataset
+from src.data import TARGET, load_dataset
 
 RANDOM_STATE = 42
 
