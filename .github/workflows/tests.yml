@@ -25,4 +25,7 @@ jobs:
           pip install pandas pytest scikit-learn joblib
 
       - name: Run portfolio tests
-        run: pytest shared/tests 01-retail-revenue-optimization/tests 04-churn-prediction-ml/tests -q
+        run: |
+          pytest shared/tests 01-retail-revenue-optimization/tests -q
+          cd 04-churn-prediction-ml
+          pytest tests -q
