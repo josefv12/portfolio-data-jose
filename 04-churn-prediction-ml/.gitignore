@@ -1,0 +1,17 @@
+# Local datasets
+/data/
+!data/processed/.gitkeep
+
+# Trained models
+/models/*.joblib
+/models/*.pkl
+
+# Generated reports
+/reports/*.json
+/reports/*.csv
+/reports/*.png
+
+# Local Python artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
