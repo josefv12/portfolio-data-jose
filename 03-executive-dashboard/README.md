@@ -20,8 +20,10 @@ y análisis de clientes, productos y devoluciones.
 | Pedidos únicos       | 39,492                      |
 | Clientes registrados | 5,846                       |
 | Ticket promedio      | £509                        |
-| Return rate          | 1.85% de transacciones      |
+| Return rate          | 1.85% de unidades          |
 | Mes pico             | Noviembre 2011 — £1,456,776 |
+
+> **Definición de Return Rate:** unidades devueltas / (unidades vendidas + unidades devueltas). No representa una tasa de transacciones.
 
 ---
 
