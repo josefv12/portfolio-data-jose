@@ -4,36 +4,38 @@ Paso 2: Carga a PostgreSQL
 Archivo: scripts/02_load.py
 """
 
-import pandas as pd
-from pathlib import Path
-from sqlalchemy import create_engine, text
+import os
 import time
+from pathlib import Path
+
+import pandas as pd
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
+
+load_dotenv()
 
 # ──────────────────────────────────────────────
 # CONFIGURACIÓN
 # ──────────────────────────────────────────────
-DB_CONFIG = {
-    "host":     "localhost",
-    "port":     5432,
-    "dbname":   "retail_db",
-    "user":     "postgres",
-    "password": "admin123",
-    "schema":   "retail",
-}
+DATABASE_URL = os.getenv("DATABASE_URL")
+SCHEMA = "retail"
 
-BASE_DIR    = Path(__file__).resolve().parent.parent
-CLEAN_CSV   = BASE_DIR / "data" / "processed" / "online_retail_clean.csv"
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL no está configurada. "
+        "Copia .env.example a .env y configura tus credenciales locales."
+    )
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+CLEAN_CSV = BASE_DIR / "data" / "processed" / "online_retail_clean.csv"
 RETURNS_CSV = BASE_DIR / "data" / "processed" / "online_retail_returns.csv"
 
 # ──────────────────────────────────────────────
 # CONEXIÓN
 # ──────────────────────────────────────────────
 def get_engine():
-    url = (
-        f"postgresql+psycopg2://{DB_CONFIG['user']}:{DB_CONFIG['password']}"
-        f"@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['dbname']}"
-    )
-    return create_engine(url, echo=False)
+    """Create the SQLAlchemy engine using DATABASE_URL."""
+    return create_engine(DATABASE_URL, echo=False)
 
 
 def log(msg):
@@ -90,7 +92,7 @@ def main():
     print("="*50)
 
     engine = get_engine()
-    schema = DB_CONFIG["schema"]
+    schema = SCHEMA
 
     # limpiar tablas
     truncate_tables(engine, schema)
@@ -115,7 +117,7 @@ def main():
         .copy()
     )
 
-    # ✅ Clientes que aparecen SOLO en returns (huérfanos)
+    # Clientes que aparecen SOLO en returns (huérfanos)
     # Son clientes reales cuyas ventas fueron filtradas en el paso de limpieza.
     # Se incluyen con first_purchase / last_purchase = NULL.
     registered_returns = (
@@ -223,7 +225,7 @@ def main():
     # ── RETURNS ────────────────────────────────
     print("\n[6/6] Cargando returns...")
 
-    valid_products  = products["stock_code"].unique()
+    valid_products = products["stock_code"].unique()
     valid_customers = set(customers["customer_id"].unique())
 
     ret = returns[
@@ -240,7 +242,7 @@ def main():
         "invoice_date"
     ]]
 
-    ret["quantity"]    = ret["quantity"].abs()
+    ret["quantity"] = ret["quantity"].abs()
     ret["customer_id"] = ret["customer_id"].fillna(0).astype(int)
 
     # Seguridad: cualquier ID que todavía no exista → guest
