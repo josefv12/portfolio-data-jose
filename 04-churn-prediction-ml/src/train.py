@@ -20,6 +20,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
 from src.data import TARGET, load_dataset
+from src.features import prepare_features
 
 RANDOM_STATE = 42
 
@@ -82,7 +83,7 @@ def main() -> None:
     args = parser.parse_args()
 
     df = load_dataset(args.data)
-    X = df.drop(columns=[TARGET])
+    X = prepare_features(df)
     y = df[TARGET]
 
     if y.nunique() != 2:
