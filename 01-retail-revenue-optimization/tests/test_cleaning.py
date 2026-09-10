@@ -43,7 +43,7 @@ def test_cleaning_keeps_valid_product_sales_and_guest_flag():
     assert len(returns) == 1
     assert set(sales["invoice_no"]) == {"1001", "1007"}
     assert sales.loc[sales["invoice_no"] == "1001", "revenue"].iloc[0] == 10.0
-    assert sales.loc[sales["invoice_no"] == "1007", "is_guest"].iloc[0] is False
+    assert bool(sales.loc[sales["invoice_no"] == "1007", "is_guest"].iloc[0]) is False
 
 
 def test_cleaning_excludes_non_product_and_invalid_sales():
