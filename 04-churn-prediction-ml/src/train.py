@@ -9,7 +9,12 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.metrics import (
+    average_precision_score,
+    classification_report,
+    confusion_matrix,
+    roc_auc_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
@@ -20,8 +25,12 @@ RANDOM_STATE = 42
 
 
 def build_pipeline(X: pd.DataFrame) -> Pipeline:
+    """Build preprocessing and model steps without fitting on held-out data."""
     numeric = X.select_dtypes(include="number").columns.tolist()
     categorical = X.select_dtypes(exclude="number").columns.tolist()
+
+    if not numeric and not categorical:
+        raise ValueError("At least one predictor column is required.")
 
     preprocessor = ColumnTransformer(
         transformers=[
@@ -49,6 +58,22 @@ def build_pipeline(X: pd.DataFrame) -> Pipeline:
     return Pipeline([("preprocessor", preprocessor), ("model", model)])
 
 
+def evaluate_predictions(y_true: pd.Series, probabilities, predictions) -> dict:
+    """Return business-relevant classification metrics."""
+    matrix = confusion_matrix(y_true, predictions, labels=[0, 1])
+    report = classification_report(y_true, predictions, output_dict=True, zero_division=0)
+
+    return {
+        "roc_auc": float(roc_auc_score(y_true, probabilities)),
+        "pr_auc": float(average_precision_score(y_true, probabilities)),
+        "precision": float(report["1"]["precision"]),
+        "recall": float(report["1"]["recall"]),
+        "f1": float(report["1"]["f1-score"]),
+        "confusion_matrix": matrix.tolist(),
+        "classification_report": report,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train the churn model.")
     parser.add_argument("--data", default="data/processed/churn.csv")
@@ -72,14 +97,8 @@ def main() -> None:
 
     probabilities = pipeline.predict_proba(X_test)[:, 1]
     predictions = pipeline.predict(X_test)
-    metrics = {
-        "roc_auc": float(roc_auc_score(y_test, probabilities)),
-        "classification_report": classification_report(
-            y_test, predictions, output_dict=True
-        ),
-        "test_rows": int(len(X_test)),
-        "random_state": RANDOM_STATE,
-    }
+    metrics = evaluate_predictions(y_test, probabilities, predictions)
+    metrics.update({"test_rows": int(len(X_test)), "random_state": RANDOM_STATE})
 
     model_path = Path(args.model_out)
     metrics_path = Path(args.metrics_out)
@@ -89,6 +108,8 @@ def main() -> None:
     metrics_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
 
     print(f"ROC-AUC: {metrics['roc_auc']:.4f}")
+    print(f"PR-AUC:   {metrics['pr_auc']:.4f}")
+    print(f"Recall:   {metrics['recall']:.4f}")
     print(f"Model saved to: {model_path}")
     print(f"Metrics saved to: {metrics_path}")
 
