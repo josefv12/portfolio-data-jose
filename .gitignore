@@ -4,27 +4,42 @@ __pycache__/
 *$py.class
 .venv/
 venv/
+env/
 
-# Jupyter Notebooks
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Jupyter
 .ipynb_checkpoints/
 
-# Datos (No subir archivos CSV gigantes, mejor poner el link al dataset)
-*.csv
-*.xlsx
+# IDE
+.vscode/
 
-# Imágenes generadas (se regeneran al ejecutar el notebook)
-data/fig_*.png
-*/data/fig_*.png
-
-# Scripts de construcción temporales
-build_notebook.py
-
-# Sistema
+# Operating system
 .DS_Store
 Thumbs.db
 
-# Samples para Streamlit Cloud
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Local datasets / large files
+*.csv
+*.xlsx
+
+# Generated images
+*/data/fig_*.png
+data/fig_*.png
+
+# Build / temporary scripts
+build_notebook.py
+
+# Keep small dashboard samples for deployment
 !03-executive-dashboard/data/processed/sample_clean.csv
 !03-executive-dashboard/data/processed/sample_returns.csv
 
+# Keep selected analysis figures when intentionally versioned
 !01-retail-revenue-optimization/notebooks/fig*.png
