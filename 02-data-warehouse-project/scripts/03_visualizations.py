@@ -14,8 +14,10 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import pandas as pd
 import seaborn as sns
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
+load_dotenv()
 
 # ──────────────────────────────────────────────
 # CONFIGURACIÓN
@@ -25,7 +27,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError(
         "DATABASE_URL no está configurada. "
-        "Crea un archivo .env local o define la variable de entorno antes de ejecutar el script."
+        "Copia .env.example a .env y configura tus credenciales locales."
     )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
