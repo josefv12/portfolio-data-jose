@@ -1,2 +1,4 @@
-# Evitar subir archivos CSV
+# Raw and processed datasets are excluded from version control.
+# Keep lightweight sample data in a dedicated sample/ directory if needed.
 *.csv
+*.xlsx
