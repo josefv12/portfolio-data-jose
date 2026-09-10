@@ -1,4 +1,4 @@
-# Data analysis
+# Data processing
 pandas==3.0.2
 numpy==2.4.4
 
@@ -12,9 +12,3 @@ psycopg2-binary==2.9.11
 
 # Environment configuration
 python-dotenv==1.2.2
-
-# Optional: used by supporting Excel/data workflows
-openpyxl==3.1.5
-
-# Optional: used for Pareto visualizations
-squarify==0.4.4
