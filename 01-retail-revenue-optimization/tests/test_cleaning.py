@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.cleaning import clean_retail_data, validate_required_columns
+from shared.retail.cleaning import clean_retail_data, validate_required_columns
 
 
 def make_raw_data():
