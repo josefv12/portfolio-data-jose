@@ -105,21 +105,55 @@ ORDER BY year, month;
 
 ## Cómo reproducirlo
 
+### 1. Levantar PostgreSQL
+
+Usa una contraseña local definida por ti; **no la guardes en el repositorio**.
+
 ```bash
-# 1. Levantar PostgreSQL
 docker run --name retail-db \
-  -e POSTGRES_PASSWORD=admin123 \
+  -e POSTGRES_PASSWORD=<TU_PASSWORD> \
   -e POSTGRES_DB=retail_db \
   -p 5432:5432 -d postgres:16
+```
 
-# 2. Descargar el dataset
-# https://archive.ics.uci.edu/dataset/502/online+retail+ii
-# → colocar en data/raw/online_retail_II.csv
+### 2. Configurar las credenciales de la aplicación
 
-# 3. Instalar dependencias
+Desde la raíz del repositorio:
+
+```bash
+cp .env.example .env
+```
+
+Edita `.env` y reemplaza `YOUR_PASSWORD` por la contraseña local de PostgreSQL.
+El archivo `.env` está excluido de Git mediante `.gitignore` y **no debe subirse a GitHub**.
+
+El proyecto utiliza una única variable de conexión:
+
+```text
+DATABASE_URL=postgresql+psycopg2://postgres:YOUR_PASSWORD@localhost:5432/retail_db
+```
+
+Los scripts de carga y visualización leen esta variable automáticamente.
+
+### 3. Descargar el dataset
+
+Fuente oficial:
+
+```text
+https://archive.ics.uci.edu/dataset/502/online+retail+ii
+```
+
+→ colocar en `data/raw/online_retail_II.csv`
+
+### 4. Instalar dependencias
+
+```bash
 pip install -r requirements.txt
+```
 
-# 4. Ejecutar en orden
+### 5. Ejecutar en orden
+
+```bash
 python scripts/01_cleaning.py
 psql -U postgres -d retail_db -f sql/01_schema.sql
 python scripts/02_load.py
