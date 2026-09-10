@@ -6,6 +6,11 @@
 
 SET search_path = retail;
 
+-- Convención de métricas del proyecto:
+-- - Revenue y pedidos: incluyen ventas de clientes identificados y guests.
+-- - Métricas centradas en clientes: excluyen guests porque no pueden atribuirse
+--   de forma individual a un cliente real.
+
 -- ============================================================
 -- QUERY 1 — Revenue mensual y crecimiento MoM
 -- Pregunta: ¿En qué meses creció o cayó el negocio?
@@ -31,7 +36,6 @@ SELECT
     , 1)                                                          AS growth_pct
 FROM invoices i
 JOIN invoice_items ii ON i.invoice_no = ii.invoice_no
-WHERE i.is_guest = FALSE
 GROUP BY year, month
 ORDER BY year, month;
 
@@ -59,7 +63,7 @@ FROM (
         SUM(ii.quantity)                                           AS total_items,
         SUM(ii.quantity * ii.unit_price)                           AS total_revenue
     FROM customers c
-    JOIN invoices i      ON c.customer_id = i.customer_id
+    JOIN invoices i       ON c.customer_id = i.customer_id
     JOIN invoice_items ii ON i.invoice_no  = ii.invoice_no
     WHERE c.is_guest = FALSE
     GROUP BY c.customer_id, c.country
@@ -118,7 +122,8 @@ ORDER BY rank;
 SELECT
     i.country,
     COUNT(DISTINCT i.invoice_no)                                   AS total_orders,
-    COUNT(DISTINCT i.customer_id)                                  AS unique_customers,
+    COUNT(DISTINCT CASE WHEN i.is_guest = FALSE THEN i.customer_id END)
+                                                                    AS unique_customers,
     ROUND(SUM(ii.quantity * ii.unit_price)::NUMERIC, 2)           AS total_revenue,
     ROUND(
         SUM(ii.quantity * ii.unit_price)::NUMERIC
@@ -126,11 +131,13 @@ SELECT
     , 2)                                                           AS avg_order_value,
     ROUND(
         SUM(ii.quantity * ii.unit_price)::NUMERIC
-        / NULLIF(COUNT(DISTINCT i.customer_id), 0)
+        / NULLIF(
+            COUNT(DISTINCT CASE WHEN i.is_guest = FALSE THEN i.customer_id END),
+            0
+        )
     , 2)                                                           AS revenue_per_customer
 FROM invoices i
 JOIN invoice_items ii ON i.invoice_no = ii.invoice_no
-WHERE i.is_guest = FALSE
 GROUP BY i.country
 HAVING COUNT(DISTINCT i.invoice_no) >= 10   -- mínimo 10 pedidos para ser significativo
 ORDER BY total_revenue DESC;
@@ -139,7 +146,7 @@ ORDER BY total_revenue DESC;
 -- ============================================================
 -- QUERY 5 — Análisis RFM (Recency, Frequency, Monetary)
 -- Pregunta: ¿Cómo segmentamos a los clientes por comportamiento?
--- Técnica: DATEDIFF, NTILE, múltiples CTEs, CASE
+-- Técnica: DATE_PART, NTILE, múltiples CTEs, CASE
 -- ============================================================
 
 WITH rfm_base AS (
