@@ -45,10 +45,12 @@ def clean_retail_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     sales = data[~data["Invoice"].str.startswith("C")].copy()
 
     stock_code = sales["StockCode"].astype(str)
-    sales = sales[~stock_code.isin(NON_PRODUCT_CODES)]
-    sales = sales[stock_code.str.match(r"^\d", na=False)]
-    sales = sales[(sales["Price"] > 0) & (sales["Quantity"] > 0)]
-    sales = sales[sales["Country"] != "Unspecified"]
+    valid_stock = ~stock_code.isin(NON_PRODUCT_CODES) & stock_code.str.match(
+        r"^\d", na=False
+    )
+    sales = sales[valid_stock].copy()
+    sales = sales[(sales["Price"] > 0) & (sales["Quantity"] > 0)].copy()
+    sales = sales[sales["Country"] != "Unspecified"].copy()
 
     desc_map = (
         sales.dropna(subset=["Description"])
