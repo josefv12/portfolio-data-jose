@@ -6,6 +6,11 @@
 
 SET search_path = retail;
 
+-- Convención de métricas del proyecto:
+-- - Revenue y pedidos: incluyen ventas de clientes identificados y guests.
+-- - Métricas centradas en clientes: excluyen guests porque no pueden atribuirse
+--   de forma individual a un cliente real.
+
 -- ============================================================
 -- VIEW 1 — Revenue mensual
 -- Uso: base para gráficos de serie de tiempo
@@ -20,7 +25,8 @@ SELECT
         'Mon YYYY'
     )                                                             AS period,
     COUNT(DISTINCT i.invoice_no)                                  AS total_orders,
-    COUNT(DISTINCT i.customer_id)                                  AS active_customers,
+    COUNT(DISTINCT CASE WHEN i.is_guest = FALSE THEN i.customer_id END)
+                                                                    AS active_customers,
     ROUND(SUM(ii.quantity * ii.unit_price)::NUMERIC, 2)           AS revenue,
     ROUND(
         SUM(ii.quantity * ii.unit_price)::NUMERIC
@@ -28,12 +34,11 @@ SELECT
     , 2)                                                          AS avg_order_value
 FROM invoices i
 JOIN invoice_items ii ON i.invoice_no = ii.invoice_no
-WHERE i.is_guest = FALSE
 GROUP BY year, month
 ORDER BY year, month;
 
 COMMENT ON VIEW vw_monthly_revenue IS
-'Revenue, pedidos y clientes activos por mes. Excluye guests.';
+'Revenue y pedidos mensuales incluyen guests; active_customers excluye guests.';
 
 
 -- ============================================================
@@ -66,7 +71,7 @@ JOIN invoice_items ii ON p.stock_code = ii.stock_code
 GROUP BY p.stock_code, p.description;
 
 COMMENT ON VIEW vw_top_products IS
-'Ranking de productos por revenue con porcentaje acumulado (Pareto).';
+'Ranking de productos por revenue con porcentaje acumulado (Pareto), incluyendo guests.';
 
 
 -- ============================================================
@@ -78,7 +83,8 @@ CREATE OR REPLACE VIEW vw_revenue_by_country AS
 SELECT
     i.country,
     COUNT(DISTINCT i.invoice_no)                                  AS total_orders,
-    COUNT(DISTINCT i.customer_id)                                 AS unique_customers,
+    COUNT(DISTINCT CASE WHEN i.is_guest = FALSE THEN i.customer_id END)
+                                                                   AS unique_customers,
     SUM(ii.quantity)                                              AS units_sold,
     ROUND(SUM(ii.quantity * ii.unit_price)::NUMERIC, 2)          AS total_revenue,
     ROUND(
@@ -87,18 +93,20 @@ SELECT
     , 2)                                                         AS avg_order_value,
     ROUND(
         SUM(ii.quantity * ii.unit_price)::NUMERIC
-        / NULLIF(COUNT(DISTINCT i.customer_id), 0)
+        / NULLIF(
+            COUNT(DISTINCT CASE WHEN i.is_guest = FALSE THEN i.customer_id END),
+            0
+        )
     , 2)                                                         AS revenue_per_customer,
     RANK() OVER (
         ORDER BY SUM(ii.quantity * ii.unit_price) DESC
     )                                                            AS revenue_rank
 FROM invoices i
 JOIN invoice_items ii ON i.invoice_no = ii.invoice_no
-WHERE i.is_guest = FALSE
 GROUP BY i.country;
 
 COMMENT ON VIEW vw_revenue_by_country IS
-'Revenue, ticket promedio y clientes únicos por país.';
+'Revenue y pedidos por país incluyen guests; unique_customers y revenue_per_customer excluyen guests.';
 
 
 -- ============================================================
@@ -150,7 +158,7 @@ SELECT
 FROM rfm_scores;
 
 COMMENT ON VIEW vw_customer_rfm IS
-'Segmentación RFM completa. Fecha de referencia: 2011-12-09 (último registro).';
+'Segmentación RFM de clientes identificados. Fecha de referencia: 2011-12-09 (último registro).';
 
 
 -- ============================================================
@@ -189,7 +197,7 @@ WHERE COALESCE(s.units_sold, 0) > 0
 ORDER BY return_rate_pct DESC;
 
 COMMENT ON VIEW vw_return_rate IS
-'Tasa de devolución por producto. Útil para control de calidad.';
+'Tasa de devolución por producto. Ventas y devoluciones incluyen guests.';
 
 
 -- ============================================================
