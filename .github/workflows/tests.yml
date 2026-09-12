@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  PYTHONPATH: 04-churn-prediction-ml
+  PYTHONPATH: ${{ github.workspace }}/04-churn-prediction-ml
 
 jobs:
   test:
