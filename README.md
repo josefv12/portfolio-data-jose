@@ -15,14 +15,14 @@
 
 📁 [Ver proyecto →](./01-retail-revenue-optimization)
 
-Análisis descriptivo del comportamiento de compra de más de **1 millón de transacciones reales** de un e-commerce UK (2009–2011) para identificar oportunidades de crecimiento.
+Análisis exploratorio del comportamiento de compra de más de **1 millón de transacciones reales** de un e-commerce UK (2009–2011) para identificar oportunidades de crecimiento.
 
 | Pregunta de negocio   | Hallazgo                                          |
 | --------------------- | ------------------------------------------------- |
 | ¿Los ingresos crecen? | Pico en noviembre 2011 — £1,456,776 en un mes     |
-| ¿Dependencia de UK?   | 83% del revenue concentrado en un solo mercado    |
-| ¿Cuándo compran?      | Jueves y miércoles son los días con mayor volumen |
-| ¿Hay retención?       | 72% de clientes identificados regresan            |
+| ¿Dependencia de UK?   | UK concentra la mayor parte del revenue          |
+| ¿Cuándo compran?      | Jueves y miércoles concentran mayor volumen       |
+| ¿Hay retención?       | El análisis identifica patrones de recompra       |
 
 **Stack:** Python · Pandas · Matplotlib · Seaborn · Estadística descriptiva
 
@@ -62,6 +62,23 @@ Dashboard público con análisis de más de **1 millón de transacciones**, filt
 
 ---
 
+### 🔹 4. Predicción de Churn de Clientes — Machine Learning
+
+📁 [Ver proyecto →](./04-churn-prediction-ml)
+
+Modelo de clasificación para identificar clientes con mayor riesgo de dejar de comprar. Construye una tabla a nivel cliente a partir de Online Retail II, define churn mediante una ventana futura de 90 días y entrena un **Random Forest** dentro de un pipeline reproducible.
+
+| Métrica | Resultado |
+| ------- | --------- |
+| Clientes modelados | 5,250 |
+| ROC-AUC | 0.775 |
+| PR-AUC | 0.780 |
+| Recall — churn | 0.80 |
+
+**Stack:** Python · Pandas · Scikit-learn · Random Forest · Joblib · GitHub Actions
+
+---
+
 ## 🛠️ Tecnologías
 
 | Área              | Herramientas                                      |
@@ -70,7 +87,8 @@ Dashboard público con análisis de más de **1 millón de transacciones**, filt
 | Visualización     | Matplotlib · Seaborn · Plotly · Streamlit         |
 | Bases de datos    | SQL · PostgreSQL · Consultas avanzadas            |
 | Dashboard / BI    | Streamlit · Power BI (en progreso)                |
-| Automatización    | Python scripts · Docker · Git · GitHub            |
+| Machine Learning  | Scikit-learn · Random Forest · Evaluación de modelos |
+| Automatización    | Python scripts · Docker · Git · GitHub Actions    |
 
 ---
 
