@@ -17,8 +17,16 @@ DEFAULT_HORIZON_DAYS = 90
 
 
 def clean_sales(df: pd.DataFrame) -> pd.DataFrame:
-    """Keep valid product sales using the portfolio's retail cleaning rules."""
-    required = {"Invoice", "StockCode", "Quantity", "InvoiceDate", "Price", "Customer ID", "Country"}
+    """Keep valid identified product sales for churn modeling."""
+    required = {
+        "Invoice",
+        "StockCode",
+        "Quantity",
+        "InvoiceDate",
+        "Price",
+        "Customer ID",
+        "Country",
+    }
     missing = required.difference(df.columns)
     if missing:
         raise ValueError(f"Missing required columns: {sorted(missing)}")
@@ -73,7 +81,6 @@ def build_churn_dataset(
         country=("Country", "last"),
     ).reset_index()
 
-    order_values = history.groupby(["Customer ID", "Invoice"])["revenue"].sum()
     features["average_order_value"] = (
         features["monetary_revenue"] / features["frequency_orders"]
     )
