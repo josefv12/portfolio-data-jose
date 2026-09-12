@@ -11,12 +11,14 @@ Un e-commerce del Reino Unido con ventas globales necesitaba entender su comport
 | ¿Los ingresos crecen? | Pico en noviembre 2011 — £1,456,776 en un mes | Preparar inventario desde septiembre     |
 | ¿Dependencia de UK?   | 83% del revenue concentrado en UK             | Expandir EIRE, Alemania, Francia         |
 | ¿Productos clave?     | Top 10 SKUs son el motor del ingreso          | Stock garantizado + mejores márgenes     |
-| ¿Cuándo compran?      | Jueves y miércoles son los días peak          | Activar campañas martes–jueves           |
+| ¿Cuándo compran?      | Jueves y miércoles son los días peak          | Activar campañas martes–jueves            |
 | ¿Retención?           | 72% de clientes identificados regresan        | Programa de lealtad para clientes nuevos |
 
 ---
 
 ## KPIs del dataset
+
+> Las cifras de este proyecto corresponden a la limpieza y metodología originales del notebook. Los proyectos 02–04 utilizan una capa de limpieza canónica más estricta para mantener métricas consistentes entre el Data Warehouse, el dashboard y el modelo de churn.
 
 | Métrica         | Valor               |
 | --------------- | ------------------- |
